@@ -2,11 +2,41 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-  
+
+  <!--
+    Server manzili build konfiguratsiyasiga bog'liq:
+      Release       -> https://self-learn.uz   (ishlab chiqarilgan ilova)
+      boshqa (Debug) -> http://localhost:8000   (lokal backend; Android emulatorda 10.0.2.2 ga almashadi)
+    O'zgartirish: dotnet build ... -p:ApiBaseUrl=https://boshqa.manzil
+  -->
+  <PropertyGroup Condition="'$(ApiBaseUrl)' == '' And '$(Configuration)' == 'Release'">
+    <ApiBaseUrl>https://self-learn.uz</ApiBaseUrl>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(ApiBaseUrl)' == ''">
+    <ApiBaseUrl>http://localhost:8000</ApiBaseUrl>
+  </PropertyGroup>
+
+  <!-- ApiBaseUrl qiymatini kompilyatsiya vaqtida C# konstantasiga aylantiradi (reflection va trimming'siz). -->
+  <Target Name="GenerateBuildConfig" BeforeTargets="BeforeCompile;CoreCompile">
+    <PropertyGroup>
+      <BuildConfigFile>$(IntermediateOutputPath)BuildConfig.g.cs</BuildConfigFile>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(BuildConfigFile)"
+                      Lines="namespace SelfLearn.Mobile%3B internal static class BuildConfig { public const string ApiBaseUrl = &quot;$(ApiBaseUrl)&quot;%3B }"
+                      Overwrite="true"
+                      WriteOnlyWhenDifferent="true" />
+    <ItemGroup>
+      <Compile Include="$(BuildConfigFile)" />
+      <FileWrites Include="$(BuildConfigFile)" />
+    </ItemGroup>
+  </Target>
+
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <InternalsVisibleTo Include="SelfLearn.Mobile.Tests" />
   </ItemGroup>
 
   <ItemGroup>
@@ -18,5 +48,6 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
   </ItemGroup>
 </Project>

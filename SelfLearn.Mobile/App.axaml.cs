@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.DependencyInjection;
 using SelfLearn.Mobile.ViewModels;
 using SelfLearn.Mobile.Views;
 
@@ -18,24 +19,31 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        // Butun ilova uchun bitta konteyner va bitta qobiq: Android activity qayta yaratilsa ham holat saqlanadi.
+        var services = new ServiceCollection().AddSelfLearn().BuildServiceProvider();
+        var shell = services.GetRequiredService<ShellViewModel>();
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainViewModel()
+                DataContext = shell
             };
         }
         else if (ApplicationLifetime is IActivityApplicationLifetime singleViewFactoryApplicationLifetime)
         {
-            singleViewFactoryApplicationLifetime.MainViewFactory = () => new MainView { DataContext = new MainViewModel() };
+            singleViewFactoryApplicationLifetime.MainViewFactory = () => new MainView { DataContext = shell };
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {
             singleViewPlatform.MainView = new MainView
             {
-                DataContext = new MainViewModel()
+                DataContext = shell
             };
         }
+
+        // Birinchi ekran: saqlangan sessiyani tekshiradi va Home yoki Login'ga o'tkazadi.
+        shell.GoTo<StartupViewModel>();
 
         base.OnFrameworkInitializationCompleted();
     }

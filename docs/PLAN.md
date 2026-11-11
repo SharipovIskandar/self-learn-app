@@ -75,18 +75,21 @@ Hamma `/api/*` javobi JSON (`Accept` sarlavhasiz ham). Himoyalangan endpointlard
 - ✅ Backend uchun alohida worktree va lokal server (`../h_ch_2-api`, 6-bo'limga qarang)
 - 🔜 `ApplicationId` va ilova nomini tanlash
 
-### 1-bosqich. Kirish (backend + ilova) 🔜
-Backend ✅ (2026-11-11, `../h_ch_2-api`, branch `feature/mobile-api`, commit `1a073a4f`, hali push qilinmagan):
+### 1-bosqich. Kirish (backend + ilova) ✅ (2026-11-11)
+Backend ✅ (`../h_ch_2-api`, branch `feature/mobile-api`, commit `1a073a4f`, hali push qilinmagan):
 - `POST /api/v1/auth/login`, `POST /api/v1/auth/logout`, `GET /api/v1/me` va 14 ta test. Shartnoma: "API v1" bo'limi
 - Backendning butun test to'plami o'tdi (1421 ta), veb xatti-harakati buzilmagan
 
-Ilova 🔜:
-- `Services/` va `Models/` papkalari, `MainViewModel` → `LoginViewModel`, DI, `ShellViewModel`
-- `ApiClient`, `AuthService`, `TokenStore`
-- Login ekrani haqiqiy API'ga ulanadi, xatolar o'zbekcha ko'rsatiladi
-- Ilova ochilganda token bo'lsa avtomatik kirish; "Chiqish" tugmasi
+Ilova ✅:
+- `Services/` (`ApiClient`, `AuthService`, `FileTokenStore`, `DeviceIdentity`, `ApiOptions`), `Models/`, DI (`ServiceCollectionExtensions`)
+- Ekranlar: `Startup` (sessiyani tiklaydi) → `Login` yoki `Home`; navigatsiya `ShellViewModel` orqali
+- Xatolar o'zbekcha: noto'g'ri parol, qo'llanmaydigan rol, limit, server yo'q ("Qayta urinish" bilan, tizimdan chiqarmaydi)
+- Klaviatura ochilganda forma siljiydi (`MainView` dagi `InputPane`), klaviaturadagi Enter ham kirishni boshlaydi
+- 61 ta unit test (`SelfLearn.Mobile.Tests`)
 
-Tayyor deyiladi: emulatorda lokal backendga haqiqiy login ishlaydi; noto'g'ri parolda xabar chiqadi; ilova qayta ochilganda tizimda qoladi; chiqish ishlaydi.
+Emulatorda tekshirilgan (Debug va Release): kirish, noto'g'ri parol, o'qituvchi (403), yangi o'quvchi eslatmasi, qayta ochganda avtomatik kirish, chiqish, server o'chiq holat va qayta urinish.
+
+Keyingi bosqichga qoldirilgan: istalgan so'rov 401 qaytarsa (token muddati tugasa) avtomatik Login'ga qaytarish. Hozir bu faqat ilova ochilishida tekshiriladi.
 
 ### 2-bosqich. Bosh sahifa ⬜
 - `GET /api/v1/solo/dashboard`: salomlashuv, XP, daraja, streak, `srs_due`, "Keyingi qadam" (`next_lesson`), CEFR progress
@@ -130,6 +133,7 @@ Muhit o'zgaruvchilari `~/.zshrc` da: `JAVA_HOME`, `ANDROID_HOME`, PATH'da `platf
 emulator -avd SelfLearn_Pixel                                   # emulator (alohida terminalda)
 dotnet build SelfLearn.Mobile.Android -t:Run                    # Android'ga yig'ib o'rnatish
 dotnet run --project SelfLearn.Mobile.Desktop                   # Desktop'da tez sinash
+dotnet test SelfLearn.Mobile.Tests                              # unit testlar
 ```
 
 Agar build `XA5300` (Android SDK topilmadi) desa:
@@ -155,6 +159,28 @@ Sinov foydalanuvchilari (hammasining paroli `password123`, faqat lokal baza):
 | `newbie@example.test` | solo_learner | placement test kutadi (`onboarding_completed=false`) |
 | `teacher@example.test` | teacher | ilova qo'llamaydigan rol, 403 olishi kerak |
 
-## 7. Ochiq savollar
+## 7. Serverni yangilash va tarqatiladigan build
+
+Ilova server manzilini build vaqtida oladi (`SelfLearn.Mobile.csproj`, `ApiBaseUrl`):
+
+| Build | Server |
+|---|---|
+| `-c Release` | `https://self-learn.uz` |
+| Debug | `http://localhost:8000` (Android emulatorda avtomatik `10.0.2.2`) |
+| istalgan | `-p:ApiBaseUrl=https://...` bilan o'zgartiriladi |
+
+Android'da oddiy `http` faqat `10.0.2.2`, `localhost`, `127.0.0.1` ga ruxsat etilgan (`Resources/xml/network_security_config.xml`), qolgan hamma narsa HTTPS.
+
+Release APK serverga yangi API chiqarilgandan keyin qayta yig'ishsiz ishlaydi. Tartib:
+
+1. Backend: `feature/mobile-api` branch'ini ko'rib chiqib `main` ga qo'shish va odatdagidek serverga chiqarish. Yangi migratsiya yo'q (`personal_access_tokens` jadvali bazaviy migratsiyalarda bor). Deploy'dan keyin odatdagi `php artisan queue:restart`.
+2. Tekshirish: `scripts/smoke-api.sh` (parolsiz). Hammasi ✓ bo'lishi kerak. Sinov akkaunti bilan to'liq tekshiruv: `SMOKE_EMAIL=... SMOKE_PASSWORD=... scripts/smoke-api.sh`.
+3. APK: `dotnet publish SelfLearn.Mobile.Android -c Release`, natija `SelfLearn.Mobile.Android/bin/Release/net10.0-android/publish/*-Signed.apk`. Hozir u debug kalit bilan imzolanadi: telefonga qo'lda o'rnatish uchun yetarli, Play Store uchun emas (6-bosqich).
+
+2026-11-11 holati: production'da `/up` 200, `/api/v1/*` 404 (API hali chiqarilmagan). Release APK emulatordan `https://self-learn.uz` ga HTTPS orqali yetib bordi va 404 ni to'g'ri ko'rsatdi.
+
+Eslatma: Debug build "fast deployment" ishlatadi. Emulatorda `adb shell pm clear` qilinsa ilova ochilmay qoladi; `adb uninstall` qilib, qayta `-t:Run` qiling.
+
+## 8. Ochiq savollar
 1. Productionda Telegram obuna to'sig'i yoqilganmi? Ilova ham shuni majburlashi kerakmi?
 2. Ilovaning yakuniy nomi va `ApplicationId` (masalan `uz.selflearn.app`).

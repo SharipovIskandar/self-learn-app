@@ -8,4 +8,5 @@
     <Deploy />
   </Project>
   <Project Path="SelfLearn.Mobile/SelfLearn.Mobile.csproj" />
+  <Project Path="SelfLearn.Mobile.Tests/SelfLearn.Mobile.Tests.csproj" />
 </Solution>

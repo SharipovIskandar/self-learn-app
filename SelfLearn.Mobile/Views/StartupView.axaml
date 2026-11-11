@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SelfLearn.Mobile.ViewModels"
+             x:Class="SelfLearn.Mobile.Views.StartupView"
+             x:DataType="vm:StartupViewModel">
+
+    <StackPanel Spacing="16"
+                Margin="24"
+                MaxWidth="400"
+                VerticalAlignment="Center">
+
+        <TextBlock Text="self-learn.uz"
+                   FontSize="28"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center" />
+
+        <ProgressBar IsIndeterminate="True"
+                     IsVisible="{Binding IsLoading}" />
+
+        <TextBlock Text="{Binding ErrorMessage}"
+                   IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                   HorizontalAlignment="Center"
+                   TextAlignment="Center"
+                   TextWrapping="Wrap" />
+
+        <Button Content="Qayta urinish"
+                Command="{Binding LoadCommand}"
+                IsVisible="{Binding !IsLoading}"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                MinHeight="48" />
+    </StackPanel>
+</UserControl>

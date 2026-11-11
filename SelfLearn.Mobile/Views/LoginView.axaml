@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SelfLearn.Mobile.ViewModels"
+             x:Class="SelfLearn.Mobile.Views.LoginView"
+             x:DataType="vm:LoginViewModel">
+
+    <!-- ScrollViewer: klaviatura chiqqanda yoki ekran kichik bo'lganda kontent aylantiriladi -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="12"
+                    Margin="24"
+                    MaxWidth="400"
+                    VerticalAlignment="Center">
+
+            <TextBlock Text="self-learn.uz"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center" />
+
+            <TextBlock Text="Hisobingizga kiring"
+                       HorizontalAlignment="Center"
+                       Opacity="0.7" />
+
+            <!-- Email: telefonda email klaviaturasi, bosh harfsiz -->
+            <TextBox Text="{Binding Email}"
+                     PlaceholderText="email@misol.com"
+                     TextInputOptions.ContentType="Email"
+                     TextInputOptions.AutoCapitalization="False"
+                     MinHeight="48"
+                     VerticalContentAlignment="Center" />
+
+            <TextBox Text="{Binding Password}"
+                     PlaceholderText="Parol"
+                     PasswordChar="●"
+                     RevealPassword="{Binding ShowPassword}"
+                     TextInputOptions.AutoCapitalization="False"
+                     MinHeight="48"
+                     VerticalContentAlignment="Center">
+                <!-- Klaviaturadagi Enter ham "Kirish" tugmasi kabi ishlaydi -->
+                <TextBox.KeyBindings>
+                    <KeyBinding Gesture="Enter" Command="{Binding LoginCommand}" />
+                </TextBox.KeyBindings>
+            </TextBox>
+
+            <CheckBox Content="Parolni ko'rsatish"
+                      IsChecked="{Binding ShowPassword}" />
+
+            <Button Content="Kirish"
+                    Command="{Binding LoginCommand}"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    MinHeight="48" />
+
+            <ProgressBar IsIndeterminate="True"
+                         IsVisible="{Binding IsBusy}" />
+
+            <TextBlock Text="{Binding ErrorMessage}"
+                       IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                       Foreground="IndianRed"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

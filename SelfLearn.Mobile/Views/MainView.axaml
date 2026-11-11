@@ -1,61 +1,9 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:SelfLearn.Mobile.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="800"
              x:Class="SelfLearn.Mobile.Views.MainView"
-             x:DataType="vm:MainViewModel">
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainViewModel />
-    </Design.DataContext>
+             x:DataType="vm:ShellViewModel">
 
-    <!-- ScrollViewer: klaviatura chiqqanda yoki ekran kichik bo'lganda kontent aylantiriladi -->
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Spacing="12"
-                    Margin="24"
-                    MaxWidth="400"
-                    VerticalAlignment="Center">
-
-            <TextBlock Text="self-learn.uz"
-                       FontSize="28"
-                       FontWeight="Bold"
-                       HorizontalAlignment="Center" />
-
-            <TextBlock Text="Hisobingizga kiring"
-                       HorizontalAlignment="Center"
-                       Opacity="0.7" />
-
-            <TextBox Text="{Binding Email}"
-                     PlaceholderText="email@misol.com"
-                     MinHeight="48"
-                     VerticalContentAlignment="Center" />
-
-            <TextBox Text="{Binding Password}"
-                     PlaceholderText="Parol"
-                     PasswordChar="●"
-                     RevealPassword="{Binding ShowPassword}"
-                     MinHeight="48"
-                     VerticalContentAlignment="Center" />
-
-            <CheckBox Content="Parolni ko'rsatish"
-                      IsChecked="{Binding ShowPassword}" />
-
-            <Button Content="Kirish"
-                    Command="{Binding LoginCommand}"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Center"
-                    VerticalContentAlignment="Center"
-                    MinHeight="48" />
-
-            <ProgressBar IsIndeterminate="True"
-                         IsVisible="{Binding IsBusy}" />
-
-            <TextBlock Text="{Binding StatusMessage}"
-                       HorizontalAlignment="Center"
-                       TextWrapping="Wrap" />
-        </StackPanel>
-    </ScrollViewer>
+    <!-- Hozirgi ekran (Startup, Login, Home...). Mos View'ni ViewLocator ViewModel nomidan topadi. -->
+    <ContentControl Content="{Binding Current}" />
 </UserControl>

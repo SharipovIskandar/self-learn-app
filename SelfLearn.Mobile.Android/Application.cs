@@ -5,7 +5,9 @@ using Avalonia.Android;
 
 namespace SelfLearn.Mobile.Android
 {
-    [Application]
+    // NetworkSecurityConfig: oddiy http faqat dev-kompyuter manzillariga (Resources/xml/network_security_config.xml).
+    // AllowBackup=false: kirish tokeni Google zaxira nusxasiga tushib ketmasin.
+    [Application(NetworkSecurityConfig = "@xml/network_security_config", AllowBackup = false)]
     public class Application : AvaloniaAndroidApplication<App>
     {
         protected Application(nint javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
