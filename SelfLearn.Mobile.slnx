@@ -1,0 +1,11 @@
+﻿<Solution>
+  <Project Path="SelfLearn.Mobile.Android/SelfLearn.Mobile.Android.csproj">
+    <Deploy />
+  </Project>
+  <Project Path="SelfLearn.Mobile.Browser/SelfLearn.Mobile.Browser.csproj" />
+  <Project Path="SelfLearn.Mobile.Desktop/SelfLearn.Mobile.Desktop.csproj" />
+  <Project Path="SelfLearn.Mobile.iOS/SelfLearn.Mobile.iOS.csproj">
+    <Deploy />
+  </Project>
+  <Project Path="SelfLearn.Mobile/SelfLearn.Mobile.csproj" />
+</Solution>
