@@ -51,21 +51,36 @@ Views  →  ViewModels  →  Services (ApiClient, AuthService, TokenStore)  → 
 - Server manzili: Debug'da emulator `http://10.0.2.2:8000`, Desktop `http://localhost:8000`; Release'da `https://self-learn.uz`.
 - UI matnlari o'zbekcha (vebdagidek).
 
+### API v1 (hozirgi shartnoma)
+Hamma `/api/*` javobi JSON (`Accept` sarlavhasiz ham). Himoyalangan endpointlarda `Authorization: Bearer <token>`.
+
+| Endpoint | Muvaffaqiyat | Xatolar |
+|---|---|---|
+| `POST /api/v1/auth/login` `{email, password, device_name}` | 200 `{token, token_type, user}` | 422 `errors.email` (email yoki parol xato) yoki maydon xatolari; 403 `code: role_not_supported`; 429 `code: too_many_attempts`, `retry_after` (+ `Retry-After`) |
+| `POST /api/v1/auth/logout` | 204 | 401 |
+| `GET /api/v1/me` | 200 `{user}` | 401 |
+
+- `user` = `{id, name, email, role, onboarding_completed}`.
+- 401 faqat "token yo'q yoki yaroqsiz" degani. Login'dagi noto'g'ri parol 422 bo'ladi (ilova 401 ni "chiqib ketish" deb qabul qila oladi).
+- Bir qurilmadan qayta kirilsa, shu qurilmaning eski tokeni almashtiriladi. Token muddatsiz, logout'da o'chadi. Logout faqat joriy qurilmaga ta'sir qiladi.
+- Email katta harf bilan kiritilsa ham topiladi (telefon klaviaturasi uchun).
+- 3 ta xato urinishdan keyin 60 soniya blok (veb bilan bir xil qoida).
+
 ## 4. Bosqichlar
 
 ### 0-bosqich. Poydevor
 - ✅ Android muhiti, shablon, login maketi
 - ✅ Git repo (`github.com/SharipovIskandar/self-learn-app`, branch `main`)
 - ✅ Bu reja
+- ✅ Backend uchun alohida worktree va lokal server (`../h_ch_2-api`, 6-bo'limga qarang)
 - 🔜 `ApplicationId` va ilova nomini tanlash
 
 ### 1-bosqich. Kirish (backend + ilova) 🔜
-Backend:
-- `POST /api/v1/auth/login` (`email`, `password`, `device_name`) → `token` va `user` (`id`, `name`, `email`, `role`, `onboarding_completed`)
-- `POST /api/v1/auth/logout`, `GET /api/v1/me`
-- 422 maydon xatolari, 429 limit, 403 `role_not_supported`
+Backend ✅ (2026-11-11, `../h_ch_2-api`, branch `feature/mobile-api`, commit `1a073a4f`, hali push qilinmagan):
+- `POST /api/v1/auth/login`, `POST /api/v1/auth/logout`, `GET /api/v1/me` va 14 ta test. Shartnoma: "API v1" bo'limi
+- Backendning butun test to'plami o'tdi (1421 ta), veb xatti-harakati buzilmagan
 
-Ilova:
+Ilova 🔜:
 - `Services/` va `Models/` papkalari, `MainViewModel` → `LoginViewModel`, DI, `ShellViewModel`
 - `ApiClient`, `AuthService`, `TokenStore`
 - Login ekrani haqiqiy API'ga ulanadi, xatolar o'zbekcha ko'rsatiladi
@@ -119,6 +134,26 @@ dotnet run --project SelfLearn.Mobile.Desktop                   # Desktop'da tez
 
 Agar build `XA5300` (Android SDK topilmadi) desa:
 `-p:AndroidSdkDirectory=$ANDROID_HOME -p:JavaSdkDirectory=$JAVA_HOME` qo'shing.
+
+### Lokal backend
+`../h_ch_2-api` ning o'z `.env` fayli (`.env.example` asosida, kalitlarsiz) va sqlite bazasi bor. Productionga hech narsa ulanmagan.
+
+```bash
+cd ../h_ch_2-api
+php artisan serve --host=127.0.0.1 --port=8000        # emulatordan: http://10.0.2.2:8000
+php artisan db:seed --class=MobileDevSeeder           # sinov foydalanuvchilarini tiklash (faqat local)
+php artisan test tests/Feature/Api                    # API testlari
+```
+
+Noldan tiklash kerak bo'lsa: `cp .env.example .env`, `composer install`, `php artisan key:generate`, `touch database/database.sqlite`, `php artisan migrate`, `php artisan db:seed --class=MobileDevSeeder`. `.env` da `APP_LOCALE=uz`, `LOG_STACK=single`, `BROADCAST_CONNECTION=log`, `TELEGRAM_REQUIRE_SUBSCRIPTION=false` qiling.
+
+Sinov foydalanuvchilari (hammasining paroli `password123`, faqat lokal baza):
+
+| Email | Rol | Nima uchun |
+|---|---|---|
+| `solo@example.test` | solo_learner | onboarding tugagan, to'liq kiradi |
+| `newbie@example.test` | solo_learner | placement test kutadi (`onboarding_completed=false`) |
+| `teacher@example.test` | teacher | ilova qo'llamaydigan rol, 403 olishi kerak |
 
 ## 7. Ochiq savollar
 1. Productionda Telegram obuna to'sig'i yoqilganmi? Ilova ham shuni majburlashi kerakmi?
