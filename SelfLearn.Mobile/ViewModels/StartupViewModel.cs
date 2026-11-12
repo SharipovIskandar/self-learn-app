@@ -44,7 +44,7 @@ public partial class StartupViewModel : ViewModelBase, INavigationAware
             }
             else
             {
-                _navigator.GoTo<HomeViewModel>();
+                _navigator.GoTo<MainTabsViewModel>();
             }
         }
         catch (ApiException ex)

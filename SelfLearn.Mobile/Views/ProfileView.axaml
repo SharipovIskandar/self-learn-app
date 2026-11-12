@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SelfLearn.Mobile.ViewModels"
+             x:Class="SelfLearn.Mobile.Views.ProfileView"
+             x:DataType="vm:ProfileViewModel">
+
+    <StackPanel Spacing="12" Margin="24" MaxWidth="400" VerticalAlignment="Center">
+        <TextBlock Text="{Binding Name}"
+                   FontSize="22"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   TextAlignment="Center"
+                   TextWrapping="Wrap" />
+        <TextBlock Text="{Binding Email}"
+                   HorizontalAlignment="Center"
+                   TextAlignment="Center"
+                   Opacity="0.7" />
+
+        <Button Content="Chiqish"
+                Command="{Binding LogoutCommand}"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                MinHeight="48" />
+
+        <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
+    </StackPanel>
+</UserControl>

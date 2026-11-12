@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
+using SelfLearn.Mobile.Services;
 
 namespace SelfLearn.Mobile.ViewModels;
 
@@ -14,9 +15,10 @@ public partial class ShellViewModel : ViewModelBase, INavigator
 {
     private readonly IServiceProvider _services;
 
-    public ShellViewModel(IServiceProvider services)
+    public ShellViewModel(IServiceProvider services, AuthService auth)
     {
         _services = services;
+        auth.SessionExpired += OnSessionExpired;
     }
 
     [ObservableProperty]
@@ -30,6 +32,17 @@ public partial class ShellViewModel : ViewModelBase, INavigator
         if (viewModel is INavigationAware aware)
         {
             _ = RunAsync(aware);
+        }
+    }
+
+    // Token serverda yaroqsiz bo'lib qoldi (masalan boshqa joydan o'chirilgan): Login'ga qaytib, sababini aytamiz.
+    private void OnSessionExpired()
+    {
+        GoTo<LoginViewModel>();
+
+        if (Current is LoginViewModel login)
+        {
+            login.ErrorMessage = ApiMessages.SessionExpired;
         }
     }
 

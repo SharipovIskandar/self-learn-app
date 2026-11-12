@@ -14,6 +14,7 @@ namespace SelfLearn.Mobile.Services;
 [JsonSerializable(typeof(LoginResponse))]
 [JsonSerializable(typeof(MeResponse))]
 [JsonSerializable(typeof(ApiErrorBody))]
+[JsonSerializable(typeof(DashboardResponse))]
 internal partial class ApiJsonContext : JsonSerializerContext
 {
 }

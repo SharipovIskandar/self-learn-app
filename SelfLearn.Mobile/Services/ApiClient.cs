@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Text;
@@ -15,6 +16,12 @@ public sealed class ApiClient
 {
     private readonly HttpClient _http;
     private readonly AuthSession _session;
+
+    /// <summary>
+    /// Token bilan yuborilgan so'rovga 401 qaytsa chiqariladi: token serverda yaroqsiz (o'chirilgan/muddati tugagan).
+    /// <see cref="AuthService"/> shu orqali foydalanuvchini Login'ga qaytaradi.
+    /// </summary>
+    public event Action? Unauthorized;
 
     public ApiClient(HttpClient http, AuthSession session)
     {
@@ -70,9 +77,11 @@ public sealed class ApiClient
     /// <summary>So'rovni yuboradi. Muvaffaqiyatsiz status bo'lsa <see cref="ApiException"/> tashlaydi.</summary>
     private async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
     {
+        var hadToken = false;
         if (_session.Token is { Length: > 0 } token)
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            hadToken = true;
         }
 
         HttpResponseMessage response;
@@ -97,6 +106,11 @@ public sealed class ApiClient
 
         try
         {
+            if (hadToken && response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                Unauthorized?.Invoke();
+            }
+
             throw await ToExceptionAsync(response, ct);
         }
         finally
@@ -119,6 +133,7 @@ public sealed class ApiClient
         {
             401 => new ApiException(ApiErrorKind.Unauthorized, ApiMessages.SessionExpired, status),
             403 => new ApiException(ApiErrorKind.Forbidden, serverMessage ?? ApiMessages.Forbidden, status, body?.Code),
+            409 => new ApiException(ApiErrorKind.Conflict, serverMessage ?? ApiMessages.Unexpected, status, body?.Code),
             422 => new ApiException(ApiErrorKind.Validation, serverMessage ?? ApiMessages.Validation, status, body?.Code, body?.Errors),
             429 => new ApiException(
                 ApiErrorKind.RateLimited,

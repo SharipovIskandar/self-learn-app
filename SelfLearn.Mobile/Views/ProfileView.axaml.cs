@@ -2,9 +2,9 @@ using Avalonia.Controls;
 
 namespace SelfLearn.Mobile.Views;
 
-public partial class HomeView : UserControl
+public partial class ProfileView : UserControl
 {
-    public HomeView()
+    public ProfileView()
     {
         InitializeComponent();
     }

@@ -17,7 +17,12 @@ public sealed class AuthService
         _tokens = tokens;
         _session = session;
         _device = device;
+
+        _api.Unauthorized += OnUnauthorized;
     }
+
+    /// <summary>Kirgan foydalanuvchining tokeni serverda yaroqsiz bo'lib qoldi. Ilova Login'ga qaytishi kerak.</summary>
+    public event Action? SessionExpired;
 
     public UserDto? CurrentUser => _session.User;
 
@@ -81,6 +86,9 @@ public sealed class AuthService
     /// </summary>
     public async Task LogoutAsync(CancellationToken ct = default)
     {
+        // Foydalanuvchi o'zi chiqyapti: serverdan 401 kelsa ham "sessiya tugadi" deb e'lon qilinmasin.
+        _session.User = null;
+
         try
         {
             await _api.PostAsync("api/v1/auth/logout", ct);
@@ -91,6 +99,19 @@ public sealed class AuthService
         }
 
         await ClearLocalAsync();
+    }
+
+    private void OnUnauthorized()
+    {
+        // Kirish va sessiyani tiklash paytida (User hali yo'q) 401 ni ularning o'zi hal qiladi.
+        if (_session.User is null)
+        {
+            return;
+        }
+
+        _session.Clear();
+        _ = _tokens.ClearAsync();
+        SessionExpired?.Invoke();
     }
 
     private async Task ClearLocalAsync()

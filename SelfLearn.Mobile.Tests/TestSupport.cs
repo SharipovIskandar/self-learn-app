@@ -27,6 +27,16 @@ internal static class Samples
         """{"message":"Juda ko'p kirish urinishi. 60 soniyadan keyin qayta urinib ko'ring.","code":"too_many_attempts","retry_after":60}""";
 
     public const string Unauthenticated = """{"message":"Unauthenticated."}""";
+
+    /// <summary>GET /api/v1/solo/dashboard: serverning haqiqiy javobi shaklida (vocab_today ilova uchun keraksiz, e'tiborsiz qoldiriladi).</summary>
+    public const string Dashboard =
+        """{"greeting":"Xayrli tong","user":{"name":"Solo Test","xp_points":120,"level":2,"level_name":"Qiziquvchi","level_progress":40,"streak_days":4},"cefr":{"current":"B1","next":"B2","mastery_pct":35},"srs":{"due":5,"total":12},"vocab_today":{"goal":null,"new_today":0,"reviews_today":0,"due_count":5,"total_words":12,"overdue":false},"next_lesson":{"slug":"to-be","title":"To be","topic":"to_be","level":"A1","resume":false},"today_practice_done":0,"skill_mastery":{"grammar":40}}""";
+
+    public const string DashboardEmpty =
+        """{"greeting":"Yaxshi tun","user":{"name":"Yangi","xp_points":0,"level":1,"level_name":"Yangi boshlandi","level_progress":0,"streak_days":0},"cefr":{"current":"A1","next":"A2","mastery_pct":0},"srs":{"due":0,"total":0},"vocab_today":{"goal":null,"new_today":0,"reviews_today":0,"due_count":0,"total_words":0,"overdue":false},"next_lesson":null,"today_practice_done":0,"skill_mastery":{}}""";
+
+    public const string OnboardingRequired =
+        """{"message":"Avval darajani aniqlash testidan o'ting (hozircha veb-saytda).","code":"onboarding_required"}""";
 }
 
 internal sealed record RecordedRequest(HttpMethod Method, string Path, string? Authorization, string? Body);
@@ -40,6 +50,9 @@ internal sealed class StubHandler : HttpMessageHandler
     {
         _respond = respond;
     }
+
+    /// <summary>Yo'l bo'yicha javob: login, dashboard va hokazo bitta handlerda.</summary>
+    public static StubHandler Routes(Func<string, HttpResponseMessage> byPath) => new(r => byPath(r.RequestUri!.AbsolutePath));
 
     public StubHandler(HttpStatusCode status, string? json = null)
         : this(_ => Json(status, json))

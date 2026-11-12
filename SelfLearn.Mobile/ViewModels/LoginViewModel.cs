@@ -56,7 +56,7 @@ public partial class LoginViewModel : ViewModelBase
             await _auth.LoginAsync(email, Password);
 
             Password = "";
-            _navigator.GoTo<HomeViewModel>();
+            _navigator.GoTo<MainTabsViewModel>();
         }
         catch (ApiException ex)
         {

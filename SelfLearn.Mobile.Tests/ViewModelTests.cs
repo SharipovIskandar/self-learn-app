@@ -67,7 +67,7 @@ public class LoginViewModelTests
 
         await vm.LoginCommand.ExecuteAsync(null);
 
-        Assert.Equal(typeof(HomeViewModel), Assert.Single(nav.Visited));
+        Assert.Equal(typeof(MainTabsViewModel), Assert.Single(nav.Visited));
         Assert.Equal("", vm.Password);
         Assert.Equal("", vm.ErrorMessage);
         Assert.False(vm.IsBusy);
@@ -125,7 +125,7 @@ public class StartupViewModelTests
 
         await new StartupViewModel(h.Auth, nav).OnNavigatedToAsync();
 
-        Assert.Equal(typeof(HomeViewModel), Assert.Single(nav.Visited));
+        Assert.Equal(typeof(MainTabsViewModel), Assert.Single(nav.Visited));
     }
 
     [Fact]
@@ -160,48 +160,7 @@ public class StartupViewModelTests
         offline = false;
         await vm.LoadCommand.ExecuteAsync(null);
 
-        Assert.Equal(typeof(HomeViewModel), Assert.Single(nav.Visited));
-    }
-}
-
-public class HomeViewModelTests
-{
-    [Fact]
-    public async Task It_greets_the_user_and_hides_the_placement_hint_when_onboarding_is_done()
-    {
-        using var h = new Harness(new StubHandler(HttpStatusCode.OK, Samples.LoginOk));
-        await h.Auth.LoginAsync("solo@example.test", "pw");
-
-        var vm = new HomeViewModel(h.Auth, new FakeNavigator());
-
-        Assert.Equal("Salom, Solo Test!", vm.Greeting);
-        Assert.False(vm.NeedsPlacementTest);
-    }
-
-    [Fact]
-    public async Task It_shows_the_placement_hint_for_a_new_learner()
-    {
-        using var h = new Harness(new StubHandler(HttpStatusCode.OK, Samples.LoginOkNeedsOnboarding));
-        await h.Auth.LoginAsync("newbie@example.test", "pw");
-
-        var vm = new HomeViewModel(h.Auth, new FakeNavigator());
-
-        Assert.True(vm.NeedsPlacementTest);
-    }
-
-    [Fact]
-    public async Task Logout_returns_to_login_and_forgets_the_session()
-    {
-        using var h = new Harness(new StubHandler(_ => StubHandler.Json(HttpStatusCode.OK, Samples.LoginOk)));
-        await h.Auth.LoginAsync("solo@example.test", "pw");
-        var nav = new FakeNavigator();
-        var vm = new HomeViewModel(h.Auth, nav);
-
-        await vm.LogoutCommand.ExecuteAsync(null);
-
-        Assert.Equal(typeof(LoginViewModel), Assert.Single(nav.Visited));
-        Assert.Null(h.Auth.CurrentUser);
-        Assert.Null(h.Tokens.Current);
+        Assert.Equal(typeof(MainTabsViewModel), Assert.Single(nav.Visited));
     }
 }
 
@@ -222,8 +181,9 @@ public class ShellViewModelTests
     [Fact]
     public void GoTo_shows_the_screen_and_tells_it_that_it_was_opened()
     {
+        using var h = new Harness(new StubHandler(HttpStatusCode.OK));
         using var provider = new ServiceCollection().AddTransient<ProbeViewModel>().BuildServiceProvider();
-        var shell = new ShellViewModel(provider);
+        var shell = new ShellViewModel(provider, h.Auth);
 
         shell.GoTo<ProbeViewModel>();
 
@@ -234,8 +194,9 @@ public class ShellViewModelTests
     [Fact]
     public void Every_visit_creates_a_fresh_screen()
     {
+        using var h = new Harness(new StubHandler(HttpStatusCode.OK));
         using var provider = new ServiceCollection().AddTransient<ProbeViewModel>().BuildServiceProvider();
-        var shell = new ShellViewModel(provider);
+        var shell = new ShellViewModel(provider, h.Auth);
 
         shell.GoTo<ProbeViewModel>();
         var first = shell.Current;
@@ -253,7 +214,11 @@ public class ShellViewModelTests
         Assert.NotNull(provider.GetRequiredService<ShellViewModel>());
         Assert.NotNull(provider.GetRequiredService<StartupViewModel>());
         Assert.NotNull(provider.GetRequiredService<LoginViewModel>());
-        Assert.NotNull(provider.GetRequiredService<HomeViewModel>());
+        Assert.NotNull(provider.GetRequiredService<MainTabsViewModel>());
+        Assert.NotNull(provider.GetRequiredService<DashboardViewModel>());
+        Assert.NotNull(provider.GetRequiredService<LessonsViewModel>());
+        Assert.NotNull(provider.GetRequiredService<VocabViewModel>());
+        Assert.NotNull(provider.GetRequiredService<ProfileViewModel>());
         Assert.Same(provider.GetRequiredService<ShellViewModel>(), provider.GetRequiredService<INavigator>());
     }
 }

@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SelfLearn.Mobile.ViewModels"
+             x:Class="SelfLearn.Mobile.Views.MainTabsView"
+             x:DataType="vm:MainTabsViewModel">
+
+    <UserControl.Styles>
+        <!-- Pastki panel: tablar teng kenglikda, bosish uchun qulay balandlikda -->
+        <Style Selector="TabItem">
+            <Setter Property="MinHeight" Value="56" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+    </UserControl.Styles>
+
+    <!-- Tab tarkibi: har bir ViewModel uchun mos View'ni ViewLocator topadi -->
+    <TabControl ItemsSource="{Binding Tabs}"
+                SelectedItem="{Binding SelectedTab}"
+                TabStripPlacement="Bottom">
+        <TabControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <UniformGrid Rows="1" />
+            </ItemsPanelTemplate>
+        </TabControl.ItemsPanel>
+        <TabControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:TabViewModelBase">
+                <TextBlock Text="{Binding Title}" HorizontalAlignment="Center" />
+            </DataTemplate>
+        </TabControl.ItemTemplate>
+    </TabControl>
+</UserControl>

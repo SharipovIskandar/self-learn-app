@@ -1,0 +1,102 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SelfLearn.Mobile.ViewModels"
+             x:Class="SelfLearn.Mobile.Views.DashboardView"
+             x:DataType="vm:DashboardViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="Padding" Value="16" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#40808080" />
+        </Style>
+    </UserControl.Styles>
+
+    <!-- Pastga tortib yangilash (RefreshContainer ScrollViewer'ni o'raydi) -->
+    <RefreshContainer RefreshRequested="OnRefreshRequested">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="16,16,16,24" Spacing="12" MaxWidth="480">
+
+                <TextBlock Text="{Binding GreetingText}"
+                           IsVisible="{Binding HasData}"
+                           FontSize="22"
+                           FontWeight="Bold"
+                           TextWrapping="Wrap" />
+
+                <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoading}" />
+
+                <!-- Xato: eski ma'lumot (bo'lsa) pastda ko'rinib turadi -->
+                <Border Classes="card"
+                        BorderBrush="IndianRed"
+                        IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding ErrorMessage}" TextWrapping="Wrap" />
+                        <Button Content="Qayta urinish"
+                                Command="{Binding LoadCommand}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                MinHeight="44" />
+                    </StackPanel>
+                </Border>
+
+                <Border Classes="card" BorderBrush="Orange" IsVisible="{Binding NeedsPlacementTest}">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Darajangizni aniqlang" FontWeight="SemiBold" />
+                        <TextBlock Text="Siz hali darajani aniqlash testidan o'tmagansiz. Hozircha uni self-learn.uz veb-saytida yakunlang."
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Spacing="12" IsVisible="{Binding HasData}">
+
+                    <!-- Daraja, XP, ketma-ket kunlar -->
+                    <Border Classes="card">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{Binding LevelText}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
+                            <ProgressBar Value="{Binding LevelProgress}" Minimum="0" Maximum="100" />
+                            <Grid ColumnDefinitions="*,*">
+                                <TextBlock Grid.Column="0" Text="{Binding XpText}" />
+                                <TextBlock Grid.Column="1" Text="{Binding StreakText}" HorizontalAlignment="Right" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Keyingi qadam -->
+                    <Border Classes="card">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Keyingi qadam" Opacity="0.6" FontSize="13" />
+                            <TextBlock Text="{Binding NextLessonTitle}"
+                                       IsVisible="{Binding HasNextLesson}"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding NextLessonMeta}"
+                                       IsVisible="{Binding HasNextLesson}"
+                                       Opacity="0.7" />
+                            <TextBlock Text="Hozircha tavsiya yo'q"
+                                       IsVisible="{Binding !HasNextLesson}"
+                                       Opacity="0.7" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Lug'at takrorlash -->
+                    <Border Classes="card">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="So'zlarni takrorlash" Opacity="0.6" FontSize="13" />
+                            <TextBlock Text="{Binding SrsText}" FontSize="16" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Til darajasi -->
+                    <Border Classes="card">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{Binding CefrText}" FontSize="16" />
+                            <ProgressBar Value="{Binding CefrMastery}" Minimum="0" Maximum="100" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </RefreshContainer>
+</UserControl>

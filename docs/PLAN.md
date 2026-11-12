@@ -59,6 +59,7 @@ Hamma `/api/*` javobi JSON (`Accept` sarlavhasiz ham). Himoyalangan endpointlard
 | `POST /api/v1/auth/login` `{email, password, device_name}` | 200 `{token, token_type, user}` | 422 `errors.email` (email yoki parol xato) yoki maydon xatolari; 403 `code: role_not_supported`; 429 `code: too_many_attempts`, `retry_after` (+ `Retry-After`) |
 | `POST /api/v1/auth/logout` | 204 | 401 |
 | `GET /api/v1/me` | 200 `{user}` | 401 |
+| `GET /api/v1/solo/dashboard` | 200 (hosila maydonlar 2-bosqichda) | 401; 403 `role_not_supported`; 409 `onboarding_required` |
 
 - `user` = `{id, name, email, role, onboarding_completed}`.
 - 401 faqat "token yo'q yoki yaroqsiz" degani. Login'dagi noto'g'ri parol 422 bo'ladi (ilova 401 ni "chiqib ketish" deb qabul qila oladi).
@@ -89,11 +90,19 @@ Ilova ✅:
 
 Emulatorda tekshirilgan (Debug va Release): kirish, noto'g'ri parol, o'qituvchi (403), yangi o'quvchi eslatmasi, qayta ochganda avtomatik kirish, chiqish, server o'chiq holat va qayta urinish.
 
-Keyingi bosqichga qoldirilgan: istalgan so'rov 401 qaytarsa (token muddati tugasa) avtomatik Login'ga qaytarish. Hozir bu faqat ilova ochilishida tekshiriladi.
 
-### 2-bosqich. Bosh sahifa ⬜
-- `GET /api/v1/solo/dashboard`: salomlashuv, XP, daraja, streak, `srs_due`, "Keyingi qadam" (`next_lesson`), CEFR progress
-- Pastki navigatsiya: Bosh sahifa · Darslar · So'zlar · Profil; pull-to-refresh
+### 2-bosqich. Bosh sahifa ✅ (2026-11-12)
+Backend ✅ (`feature/mobile-api`, commit `83a54ce1`, hali push qilinmagan):
+- `GET /api/v1/solo/dashboard`: salomlashuv, XP/daraja/streak, CEFR, `srs {due,total}`, `vocab_today`, `next_lesson {slug,title,topic,level,resume}`, `skill_mastery`
+- `api.solo` middleware: o'quv endpointlari faqat onboarding'dan o'tgan `solo_learner` uchun, aks holda JSON `403 role_not_supported` / `409 onboarding_required`
+- 8 ta test
+
+Ilova ✅:
+- Pastki navigatsiya: Bosh sahifa · Darslar · So'zlar · Profil (`MainTabsViewModel`). Darslar va So'zlar hozircha "tez orada" bo'limi
+- Bosh sahifa: daraja va XP, ketma-ket kunlar, keyingi dars, takrorlash, til darajasi; pastga tortib yangilash; xatoda eski ma'lumot saqlanadi
+- Token serverda yaroqsiz bo'lsa (istalgan so'rovda 401) avtomatik Login'ga qaytadi: "Sessiya tugagan"
+- Xavfsiz hudud (holat paneli, navigatsiya chizig'i) va klaviatura hisobga olingan, Debug va Release'da bir xil
+- 77 ta unit test
 
 ### 3-bosqich. So'z takrorlash (SRS) ⬜
 - `GET /api/v1/vocab/practice`, `POST /api/v1/vocab/answer` (mavjud mantiq), so'z qo'shish va qidirish

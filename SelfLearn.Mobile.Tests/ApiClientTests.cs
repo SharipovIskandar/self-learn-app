@@ -115,6 +115,18 @@ public class ApiClientTests
     }
 
     [Fact]
+    public async Task Maps_409_to_conflict_and_keeps_the_error_code()
+    {
+        var handler = new StubHandler(HttpStatusCode.Conflict, Samples.OnboardingRequired);
+
+        var error = await Assert.ThrowsAsync<ApiException>(() => GetMe(Client(handler)));
+
+        Assert.Equal(ApiErrorKind.Conflict, error.Kind);
+        Assert.Equal("onboarding_required", error.Code);
+        Assert.Contains("darajani aniqlash", error.Message);
+    }
+
+    [Fact]
     public async Task Maps_429_and_reads_retry_after_from_the_body()
     {
         var handler = new StubHandler((HttpStatusCode)429, Samples.TooManyAttempts);

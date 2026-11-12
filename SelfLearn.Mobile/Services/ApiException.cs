@@ -11,6 +11,9 @@ public enum ApiErrorKind
     /// <summary>403, masalan <c>role_not_supported</c>.</summary>
     Forbidden,
 
+    /// <summary>409: amalni hozirgi holatda bajarib bo'lmaydi, masalan <c>onboarding_required</c>.</summary>
+    Conflict,
+
     /// <summary>422: kiritilgan ma'lumot noto'g'ri yoki email/parol xato.</summary>
     Validation,
 

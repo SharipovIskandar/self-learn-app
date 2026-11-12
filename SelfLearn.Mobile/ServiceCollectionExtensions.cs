@@ -25,6 +25,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(sp => CreateHttpClient(sp.GetRequiredService<ApiOptions>()));
         services.AddSingleton<ApiClient>();
         services.AddSingleton<AuthService>();
+        services.AddSingleton<DashboardService>();
 
         // Qobiq va navigatsiya: bitta ShellViewModel ham o'zi, ham INavigator sifatida.
         services.AddSingleton<ShellViewModel>();
@@ -33,7 +34,11 @@ public static class ServiceCollectionExtensions
         // Ekranlar: har safar ochilganda yangi (forma tozalangan) holatda.
         services.AddTransient<StartupViewModel>();
         services.AddTransient<LoginViewModel>();
-        services.AddTransient<HomeViewModel>();
+        services.AddTransient<MainTabsViewModel>();
+        services.AddTransient<DashboardViewModel>();
+        services.AddTransient<LessonsViewModel>();
+        services.AddTransient<VocabViewModel>();
+        services.AddTransient<ProfileViewModel>();
 
         return services;
     }
